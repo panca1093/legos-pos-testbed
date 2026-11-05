@@ -21,6 +21,17 @@ export class Cart {
     this.lines.set(sku, { sku, qty, unitPrice: this.catalog.get(sku).price });
   }
 
+  setQty(sku: string, qty: number): void {
+    if (!Number.isInteger(qty) || qty < 0) throw new Error("qty must be a positive integer");
+    const existing = this.lines.get(sku);
+    if (!existing) throw new Error(`sku not in cart: ${sku}`);
+    if (qty === 0) {
+      this.lines.delete(sku);
+      return;
+    }
+    existing.qty = qty;
+  }
+
   remove(sku: string): void {
     this.lines.delete(sku);
   }
