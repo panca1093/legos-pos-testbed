@@ -26,6 +26,39 @@ describe("Cart", () => {
     expect(cart.subtotal()).toBe(0);
   });
 
+  it("setQty replaces the qty and subtotal follows", () => {
+    const cart = new Cart(catalog());
+    cart.add("KOPI", 2);
+    cart.setQty("KOPI", 5);
+    expect(cart.items()[0].qty).toBe(5);
+    expect(cart.subtotal()).toBe(5 * 18000);
+  });
+
+  it("setQty with 0 removes the line", () => {
+    const cart = new Cart(catalog());
+    cart.add("KOPI", 2);
+    cart.setQty("KOPI", 0);
+    expect(cart.items()).toHaveLength(0);
+    expect(cart.subtotal()).toBe(0);
+  });
+
+  it("setQty rejects negative and non-integer qty", () => {
+    const cart = new Cart(catalog());
+    cart.add("KOPI", 2);
+    expect(() => cart.setQty("KOPI", -1)).toThrow("qty must be a positive integer");
+    expect(() => cart.setQty("KOPI", 1.5)).toThrow("qty must be a positive integer");
+    expect(() => cart.setQty("KOPI", NaN)).toThrow("qty must be a positive integer");
+    expect(cart.items()[0].qty).toBe(2);
+  });
+
+  it("setQty throws for sku not in cart and leaves cart unchanged", () => {
+    const cart = new Cart(catalog());
+    cart.add("KOPI", 2);
+    expect(() => cart.setQty("ROTI", 3)).toThrow();
+    expect(cart.items()).toHaveLength(1);
+    expect(cart.subtotal()).toBe(2 * 18000);
+  });
+
   it("rejects non-positive quantities", () => {
     expect(() => new Cart(catalog()).add("KOPI", 0)).toThrow();
   });
